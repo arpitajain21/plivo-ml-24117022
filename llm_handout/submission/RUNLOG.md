@@ -56,3 +56,21 @@ scored runs, and are labelled as such above. Untested, stated as predictions:
 - **depth vs width:** 6x144 was chosen over 8x128 and 4x176 on reasoning alone.
 - **dropout 0.1:** expected to hurt — ~1 epoch over 7 MB is underfitting.
 - Single seed, no variance estimate.
+
+## R7 - Ablation: is warmup actually load-bearing?
+
+**Prediction (written BEFORE running):** in R3 I claimed 3e-3 is only stable
+because warmup + corrected init + clipping work together. This tests one leg.
+At lr 3e-3 with warmup 0, the first steps hit a freshly initialised residual
+stream at full learning rate. I expect loss to spike above its step-0 value
+(~8.0) or go nan within 50 steps.
+**Falsification condition:** if it trains normally, my R3 ordering claim is
+wrong and clipping is doing the stabilising work I attributed to warmup.
+
+**Command:**
+python train.py --data ../data/train_corpus.txt --steps 300 --out abl_nowarmup.pt \
+  --batch 16 --block 512 --lr 3e-3 --warmup 0 --wd 0.1 \
+  --n_layer 6 --n_head 6 --n_embd 144 --n_ff 384
+
+**Result:** ______
+**Diagnosis:** ______
